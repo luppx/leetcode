@@ -43,40 +43,86 @@ struct TreeNode {
 //     }
 // };
 
-//迭代。时间复杂度O(N)，空间复杂度O(N)。速度比递归快得多，leetcode将近双百。
+// //迭代。时间复杂度O(N)，空间复杂度O(N)。速度比递归快得多，leetcode将近双百。
+// class Solution {
+// public:
+//     TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+//         if (preorder.size()==0)
+//             return NULL;
+//         stack<TreeNode*> s;
+//         TreeNode* root = new TreeNode(preorder[0]);
+//         s.push(root);
+//         int inorder_idx = 0;
+//         for (int i = 1; i < preorder.size(); i++)
+//         {
+//             int pre_val = preorder[i];
+//             TreeNode* tmp = s.top();
+//             if (tmp->val != inorder[inorder_idx])
+//             {
+//                 tmp->left = new TreeNode(pre_val);
+//                 s.push(tmp->left);
+//             }
+//             else
+//             {
+//                 //TreeNode* node = new TreeNode(-1);
+//                 while (!s.empty() && s.top()->val==inorder[inorder_idx])
+//                 {
+//                     tmp = s.top();
+//                     s.pop();
+//                     inorder_idx++;
+//                 }
+//                 tmp->right = new TreeNode(pre_val);
+//                 s.push(tmp->right);
+//             }          
+//         }
+//         return root;
+//     }
+// };
+
+//递归2。20210303自己写。
+//中序遍历分别和前序、后序、层序遍历结合都可以唯一确定一个二叉树
 class Solution {
 public:
     TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
-        if (preorder.size()==0)
-            return NULL;
-        stack<TreeNode*> s;
-        TreeNode* root = new TreeNode(preorder[0]);
-        s.push(root);
-        int inorder_idx = 0;
-        for (int i = 1; i < preorder.size(); i++)
+        if(preorder.empty() || inorder.empty()) return NULL;
+        else if(preorder.size()==1 && inorder.size()==1)
         {
-            int pre_val = preorder[i];
-            TreeNode* tmp = s.top();
-            if (tmp->val != inorder[inorder_idx])
-            {
-                tmp->left = new TreeNode(pre_val);
-                s.push(tmp->left);
-            }
-            else
-            {
-                //TreeNode* node = new TreeNode(-1);
-                while (!s.empty() && s.top()->val==inorder[inorder_idx])
-                {
-                    tmp = s.top();
-                    s.pop();
-                    inorder_idx++;
-                }
-                tmp->right = new TreeNode(pre_val);
-                s.push(tmp->right);
-            }          
+            TreeNode* root = new TreeNode(preorder[0]);
+            return root;
         }
+        
+        int data_size = preorder.size()-1;
+        
+        for (int i = 0; i < inorder.size(); i++)
+        {
+            in_map[inorder[i]] = i;    
+        }
+        
+        TreeNode* root = BuildTree(preorder, inorder, 0, 0, data_size);     
+        
         return root;
     }
+
+private:
+    TreeNode* BuildTree(vector<int>& preorder, vector<int>& inorder, int pre_root_idx, int in_left_bound, int in_right_bound)
+    {
+        if(in_left_bound>in_right_bound) return NULL;
+        TreeNode* node = new TreeNode(preorder[pre_root_idx]);
+        int in_root_idx = in_map[preorder[pre_root_idx]];
+        
+        int left_subtree_len = in_root_idx - in_left_bound;
+        int right_subtree_len = in_right_bound - in_root_idx;
+
+        int pre_right_root_idx = pre_root_idx + left_subtree_len + 1;
+
+        node->left = BuildTree(preorder, inorder, pre_root_idx+1, in_left_bound, in_root_idx-1);
+
+        node->right = BuildTree(preorder, inorder, pre_right_root_idx, in_root_idx+1, in_right_bound);
+        return node;
+    }
+
+    unordered_map<int, int> in_map;
+
 };
 
 int main(int argc, char const *argv[])
