@@ -3,3 +3,4 @@
 .DS_store
 jianzhioffer/.DS_store
 .gitignore
+*_test.go
