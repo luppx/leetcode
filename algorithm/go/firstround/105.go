@@ -1,7 +1,5 @@
 package firstround
 
-import "golang.org/x/tools/go/analysis/passes/nilfunc"
-
 type TreeNode struct {
 	Val int
 	Left *TreeNode
